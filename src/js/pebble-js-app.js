@@ -67,34 +67,40 @@ function fetchCgmData(lastReadTime, lastBG) {
                 var battery = bgs[0].battery;
                 if (battery == undefined || battery == null)
                     battery = "";
-                else battery = battery + "%";
+                else {
+                    if (battery < 10 && sinceLastAlert > TIME_30_MINS){
+                        alertValue = 3;
+                        lastAlert = now;
+                    }
+                    battery = battery + "%";
+                }
 
                 if (parseInt(currentDelta) >= 0)
                     currentDelta = "+" + currentDelta;
 
+                
+                //if (currentBG < 55)
+                //    alertValue = 2;
+                //else if (currentBG < 60 && currentDelta < 0)
+                //    alertValue = 2;
+                //else if (currentBG < 70 && sinceLastAlert > TIME_15_MINS)
+                //    alertValue = 2;
+                //else if (currentBG < 120 && currentTrend == 7) //DBL_DOWN
+                //    alertValue = 2;
+                //else if (currentBG == 100 && currentTrend !== 0) //PERFECT SCORE
+                //    alertValue = 1;
+                //else if (currentBG > 120 && currentTrend == 1) //DBL_UP
+                //    alertValue = 3;
+                //else if (currentBG > 200 && sinceLastAlert > TIME_30_MINS && currentDelta > 0)
+                //    alertValue = 3;
+                //else if (currentBG > 250 && sinceLastAlert > TIME_30_MINS)
+                //    alertValue = 3;
+                //else if (currentBG > 300 && sinceLastAlert > TIME_15_MINS)
+                //    alertValue = 3;
 
-                if (currentBG < 55)
-                    alertValue = 2;
-                else if (currentBG < 60 && currentDelta < 0)
-                    alertValue = 2;
-                else if (currentBG < 70 && sinceLastAlert > TIME_15_MINS)
-                    alertValue = 2;
-                else if (currentBG < 120 && currentTrend == 7) //DBL_DOWN
-                    alertValue = 2;
-                else if (currentBG == 100 && currentTrend !== 0) //PERFECT SCORE
-                    alertValue = 1;
-                else if (currentBG > 120 && currentTrend == 1) //DBL_UP
-                    alertValue = 3;
-                else if (currentBG > 200 && sinceLastAlert > TIME_30_MINS && currentDelta > 0)
-                    alertValue = 3;
-                else if (currentBG > 250 && sinceLastAlert > TIME_30_MINS)
-                    alertValue = 3;
-                else if (currentBG > 300 && sinceLastAlert > TIME_15_MINS)
-                    alertValue = 3;
-
-                if (alertValue > 0) {
-                    lastAlert = now;
-                }
+                //if (alertValue > 0) {
+                //    lastAlert = now;
+                //}
 
 
                 req2.onload = function(o) {
@@ -102,7 +108,13 @@ function fetchCgmData(lastReadTime, lastBG) {
                     var battery2 = response2.bgs[0].battery;
                     if (battery2 == undefined || battery2 == null)
                         battery2 = "";
-                    else battery2 = battery2 + "%";
+                    else {
+                        if (battery2 < 10 && sinceLastAlert > TIME_30_MINS){
+                        alertValue = 3;
+                        lastAlert = now;
+                        }
+                    battery2 = battery2 + "%";
+                    }
 
                     if (parseInt(response2.bgs[0].bgdelta) >= 0)
                         response2.bgs[0].bgdelta = "+" + response2.bgs[0].bgdelta;
@@ -110,13 +122,13 @@ function fetchCgmData(lastReadTime, lastBG) {
                     var message = {
                         alert: alertValue,
                         bg: currentBG,
-                        readtime: formatDate(new Date(bgs[0].datetime)),
+                        readtime: formatDate(new Date(bgs[0].datetime))+" "+ currentDelta + " mg/dL",
                         icon: currentTrend,
-                        delta: battery + "Jasper" + currentDelta,
+                        delta: "Jasper " + battery,
                         icon2: DIRECTIONS(response2.bgs[0].direction),
                         bg2: response2.bgs[0].sgv,
-                        readtime2: formatDate(new Date(response2.bgs[0].datetime)),
-                        delta2: battery2 + "Jasmine" + response2.bgs[0].bgdelta
+                        readtime2: formatDate(new Date(response2.bgs[0].datetime))+" "+ response2.bgs[0].bgdelta + " mg/dL",
+                        delta2: "Jasmine " + battery2
 
                     };
 
